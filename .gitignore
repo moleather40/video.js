@@ -1,6 +1,6 @@
 .DS_Store
-dist/*
 build/files/*
+build/temp/*
 docs/api/*
 dev.html
 projects
@@ -22,3 +22,12 @@ sandbox/*
 
 *results.xml
 *.log
+
+test/coverage/*
+.coveralls.yml
+.sass-cache
+
+dist/*
+es5/*
+
+.idea/

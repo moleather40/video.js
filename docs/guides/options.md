@@ -54,7 +54,7 @@ or
 
 ### autoplay ###
 If autoplay is true, the video will start playing as soon as page is loaded (without any interaction from the user).
-NOT SUPPORTED BY APPLE iOS DEVICES. Apple blocks the autoplay functionality in an effort to protect it's customers from unwillingly using a lot of their (often expensive) monthly data plans. A user touch/click is required to start the video in this case.
+NOT SUPPORTED BY APPLE iOS DEVICES. Apple blocks the autoplay functionality in an effort to protect its customers from unwillingly using a lot of their (often expensive) monthly data plans. A user touch/click is required to start the video in this case.
 ```html
 <video autoplay ...>
 or
@@ -88,11 +88,11 @@ or
 
 
 ### loop ###
-The loop attribute causes the video to start over as soon as it ends. This could be used for a visual affect like clouds in the background.
+The loop attribute causes the video to start over as soon as it ends. This could be used for a visual effect like clouds in the background.
 ```html
 <video loop ...>
 or
-{ "loop": "true" }
+{ "loop": true }
 ```
 
 
@@ -112,3 +112,27 @@ The height attribute sets the display height of the video.
 or
 { "height": 480 }
 ```
+
+Component Options
+-----------------
+
+You can set the options for any single player component. For instance, if you wanted to remove the `muteToggle` button, which
+is a child of `controlBar`, you can just set that component to false:
+
+```js
+var player = videojs('video-id', {
+  controlBar: {
+    muteToggle: false
+  }
+});
+```
+
+This also works using the `data-setup` attribute on the video element, just remember the options need to use proper JSON
+notation.
+
+```html
+<video ... data-setup='{ "controlBar": { "muteToggle": false } }'></video>
+```
+
+The [components guide](./components.md) has an excellent breakdown of the structure of a player, you
+just need to remember to nest child components in a `children` array for each level.

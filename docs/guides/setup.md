@@ -6,29 +6,47 @@ Video.js is pretty easy to set up. It can take a matter of seconds to get the pl
 Step 1: Include the Video.js Javascript and CSS files in the head of your page.
 ------------------------------------------------------------------------------
 
-You can download the Video.js source and host it on your own servers, or use the free CDN hosted version. It's often recommended now to put JavaScript before the end body tag (&lt;/body>) instead of the head (&lt;head>), but Video.js includes an 'HTML5 Shiv', which needs to be in the head for older IE versions to respect the video tag as a valid element.
+You can download the Video.js source and host it on your own servers, or use the free CDN hosted version. As of Video.js 5.0, the source is [transpiled from ES2015](http://babeljs.io/) (formerly known as ES6) to [ES5](https://es5.github.io/), but IE8 only supports ES3. In order to continue to support IE8, we've bundled an [ES5 shim and sham](https://github.com/es-shims/es5-shim) together and hosted it on the CDN.
 
-> NOTE: If you're already using an HTML5 shiv like [Modernizr](http://modernizr.com/) you can include the Video.js JavaScript anywhere, however make sure your version of Modernizr includes the shiv for video.
-
-> If you're not using something like Modernizr but still want to include Video.JS before the closing body tag, you can add your own shiv. Include this in the head of your document:
-
-> ```html
-<script type="text/javascript">
-  document.createElement('video');document.createElement('audio');document.createElement('track');
-</script>
+```html
+<script src="//vjs.zencdn.net/ie8/1.1.1/videojs-ie8.min.js"></script>
 ```
 
 ### CDN Version ###
 ```html
-<link href="//vjs.zencdn.net/4.6/video-js.css" rel="stylesheet">
-<script src="//vjs.zencdn.net/4.6/video.js"></script>
+<link href="//vjs.zencdn.net/5.4.6/video-js.min.css" rel="stylesheet">
+<script src="//vjs.zencdn.net/5.4.6/video.min.js"></script>
 ```
 
+Alternatively you can always [go here](http://videojs.com/getting-started/) to get the latest URL for videojs CDN.
+
+We include a stripped down Google Analytics pixel that tracks a random percentage (currently 1%) of players loaded from the CDN. This allows us to see (roughly) what browsers are in use in the wild, along with other useful metrics such as OS and device. If you'd like to disable analytics, you can simply include the following global **before** including Video.js:
+
+```js
+window.HELP_IMPROVE_VIDEOJS = false;
+```
+
+## Install via package manager
+
+### NPM
+```
+$ npm install --save video.js
+```
+
+### Bower
+```
+$ bower install --save video.js
+```
+
+
 ### Self Hosted. ###
-With the self hosted option you'll also want to update the location of the video-js.swf file.
+To entirely self-host, you'll need to pull in the font files and let Video.js know where the swf is located. If you simply copy the dist folder or zip file contents into your project everything
+should Just Work™, but the paths can easily be changed by editing the LESS file and re-building, or by modifying the generated CSS file. Additionally include the [videojs-vtt.js](https://www.npmjs.com/package/videojs-vtt.js) source, which adds the `WebVTT` object to the global scope.
+
 ```html
-<link href="//example.com/path/to/video-js.css" rel="stylesheet">
-<script src="//example.com/path/to/video.js"></script>
+<link href="//example.com/path/to/video-js.min.css" rel="stylesheet">
+<script src="//example.com/path/to/videojs-vtt.js"></script>
+<script src="//example.com/path/to/video.min.js"></script>
 <script>
   videojs.options.flash.swf = "http://example.com/path/to/video-js.swf"
 </script>
@@ -39,7 +57,9 @@ Step 2: Add an HTML5 video tag to your page.
 --------------------------------------------
 With Video.js you just use an HTML5 video tag to embed a video. Video.js will then read the tag and make it work in all browsers, not just ones that support HTML5 video. Beyond the basic markup, Video.js needs a few extra pieces.
 
-  1. The 'data-setup' Attribute tells Video.js to automatically set up the video when the page is ready, and read any options (in JSON format) from the attribute (see [options](options.md)). There are other methods for initializing the player, but this is the easiest.
+> Note: The `data-setup` attribute described here should not be used if you use the alternative setup described in the next section.
+
+  1. The 'data-setup' Attribute tells Video.js to automatically set up the video when the page is ready, and read any options (in JSON format) from the attribute (see [options](./options.md)). There are other methods for initializing the player, but this is the easiest.
 
   2. The 'id' Attribute: Should be used and unique for every video on the same page.
 
@@ -53,9 +73,9 @@ Otherwise include/exclude attributes, settings, sources, and tracks exactly as y
   controls preload="auto" width="640" height="264"
   poster="http://video-js.zencoder.com/oceans-clip.png"
   data-setup='{"example_option":true}'>
- <source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4' />
- <source src="http://video-js.zencoder.com/oceans-clip.webm" type='video/webm' />
- <source src="http://video-js.zencoder.com/oceans-clip.ogv" type='video/ogg' />
+ <source src="http://video-js.zencoder.com/oceans-clip.mp4" type="video/mp4" />
+ <source src="http://video-js.zencoder.com/oceans-clip.webm" type="video/webm" />
+ <source src="http://video-js.zencoder.com/oceans-clip.ogv" type="video/ogg" />
  <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
 </video>
 ```
@@ -101,4 +121,4 @@ videojs(document.getElementsByClassName('awesome_video_class')[0], {}, function(
 });
 ```
 
-\* If you have trouble playing back content you know is in the [correct format](http://blog.zencoder.com/2013/09/13/what-formats-do-i-need-for-html5-video/), your HTTP server might not be delivering the content with the correct [MIME type](http://en.wikipedia.org/wiki/Internet_media_type#Type_video). Please double check your content's headers before opening an [issue](https://github.com/videojs/video.js/blob/master/CONTRIBUTING.md).
+\* If you have trouble playing back content you know is in the [correct format](http://blog.zencoder.com/2013/09/13/what-formats-do-i-need-for-html5-video/), your HTTP server might not be delivering the content with the correct [MIME type](http://en.wikipedia.org/wiki/Internet_media_type#Type_video). Please double check your content's headers before opening an [issue](/CONTRIBUTING.md).

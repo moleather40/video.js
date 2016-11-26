@@ -1,66 +1,96 @@
 /**
- * @fileoverview Functions for automatically setting up a player
+ * @file setup.js
+ *
+ * Functions for automatically setting up a player
  * based on the data-setup attribute of the video tag
  */
+import * as Events from './utils/events.js';
+import document from 'global/document';
+import window from 'global/window';
+
+let _windowLoaded = false;
+let videojs;
 
 // Automatically set up any tags that have a data-setup attribute
-vjs.autoSetup = function(){
-  var options, vid, player,
-      vids = document.getElementsByTagName('video');
+const autoSetup = function() {
+  // One day, when we stop supporting IE8, go back to this, but in the meantime...*hack hack hack*
+  // var vids = Array.prototype.slice.call(document.getElementsByTagName('video'));
+  // var audios = Array.prototype.slice.call(document.getElementsByTagName('audio'));
+  // var mediaEls = vids.concat(audios);
+
+  // Because IE8 doesn't support calling slice on a node list, we need to loop
+  // through each list of elements to build up a new, combined list of elements.
+  const vids = document.getElementsByTagName('video');
+  const audios = document.getElementsByTagName('audio');
+  const mediaEls = [];
+
+  if (vids && vids.length > 0) {
+    for (let i = 0, e = vids.length; i < e; i++) {
+      mediaEls.push(vids[i]);
+    }
+  }
+
+  if (audios && audios.length > 0) {
+    for (let i = 0, e = audios.length; i < e; i++) {
+      mediaEls.push(audios[i]);
+    }
+  }
 
   // Check if any media elements exist
-  if (vids && vids.length > 0) {
+  if (mediaEls && mediaEls.length > 0) {
 
-    for (var i=0,j=vids.length; i<j; i++) {
-      vid = vids[i];
+    for (let i = 0, e = mediaEls.length; i < e; i++) {
+      const mediaEl = mediaEls[i];
 
       // Check if element exists, has getAttribute func.
-      // IE seems to consider typeof el.getAttribute == 'object' instead of 'function' like expected, at least when loading the player immediately.
-      if (vid && vid.getAttribute) {
+      // IE seems to consider typeof el.getAttribute == 'object' instead of
+      // 'function' like expected, at least when loading the player immediately.
+      if (mediaEl && mediaEl.getAttribute) {
 
         // Make sure this player hasn't already been set up.
-        if (vid['player'] === undefined) {
-          options = vid.getAttribute('data-setup');
+        if (mediaEl.player === undefined) {
+          const options = mediaEl.getAttribute('data-setup');
 
           // Check if data-setup attr exists.
           // We only auto-setup if they've added the data-setup attr.
           if (options !== null) {
-
-            // Parse options JSON
-            // If empty string, make it a parsable json object.
-            options = vjs.JSON.parse(options || '{}');
-
             // Create new video.js instance.
-            player = videojs(vid, options);
+            videojs(mediaEl);
           }
         }
 
       // If getAttribute isn't defined, we need to wait for the DOM.
       } else {
-        vjs.autoSetupTimeout(1);
+        autoSetupTimeout(1);
         break;
       }
     }
 
-  // No videos were found, so keep looping unless page is finisehd loading.
-  } else if (!vjs.windowLoaded) {
-    vjs.autoSetupTimeout(1);
+  // No videos were found, so keep looping unless page is finished loading.
+  } else if (!_windowLoaded) {
+    autoSetupTimeout(1);
   }
 };
 
 // Pause to let the DOM keep processing
-vjs.autoSetupTimeout = function(wait){
-  setTimeout(vjs.autoSetup, wait);
-};
+function autoSetupTimeout(wait, vjs) {
+  if (vjs) {
+    videojs = vjs;
+  }
+
+  setTimeout(autoSetup, wait);
+}
 
 if (document.readyState === 'complete') {
-  vjs.windowLoaded = true;
+  _windowLoaded = true;
 } else {
-  vjs.one(window, 'load', function(){
-    vjs.windowLoaded = true;
+  Events.one(window, 'load', function() {
+    _windowLoaded = true;
   });
 }
 
-// Run Auto-load players
-// You have to wait at least once in case this script is loaded after your video in the DOM (weird behavior only with minified version)
-vjs.autoSetupTimeout(1);
+const hasLoaded = function() {
+  return _windowLoaded;
+};
+
+export { autoSetup, autoSetupTimeout, hasLoaded };
